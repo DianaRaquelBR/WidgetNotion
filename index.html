@@ -84,7 +84,7 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="container">
         <div class="crop-container">
             <div class="image-wrapper">
                 <img src="https://i.pinimg.com/564x/d6/6e/88/d66e88c7a958c5300c4213b624e59ff7.jpg" alt="Butterfly Image" id="image">
@@ -96,10 +96,10 @@
         <form id="context-menu-form">
             <label for="image-url">Image URL:</label>
             <input type="text" id="image-url">
-            <label for="image-width">Width (px):</label>
-            <input type="number" id="image-width">
-            <label for="image-height">Height (px):</label>
-            <input type="number" id="image-height">
+            <label for="container-width">Width (px):</label>
+            <input type="number" id="container-width">
+            <label for="container-height">Height (px):</label>
+            <input type="number" id="container-height">
             <button type="submit">Apply</button>
         </form>
     </div>
@@ -107,6 +107,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const imageWrapper = document.querySelector('.image-wrapper');
             const image = document.getElementById('image');
+            const container = document.getElementById('container');
             const contextMenu = document.getElementById('context-menu');
             const contextMenuForm = document.getElementById('context-menu-form');
             let isDragging = false;
@@ -175,19 +176,19 @@
             contextMenuForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 const imageUrl = document.getElementById('image-url').value;
-                const imageWidth = document.getElementById('image-width').value;
-                const imageHeight = document.getElementById('image-height').value;
+                const containerWidth = document.getElementById('container-width').value;
+                const containerHeight = document.getElementById('container-height').value;
 
                 if (imageUrl) {
                     image.src = imageUrl;
                 }
 
-                if (imageWidth) {
-                    image.style.width = `${imageWidth}px`;
+                if (containerWidth) {
+                    container.style.width = `${containerWidth}px`;
                 }
 
-                if (imageHeight) {
-                    image.style.height = `${imageHeight}px`;
+                if (containerHeight) {
+                    container.style.height = `${containerHeight}px`;
                 }
 
                 contextMenu.style.display = 'none';
