@@ -53,7 +53,33 @@
             height: 100%;
             border-radius: 150px 150px 0 0; /* Arched top */
             pointer-events: none;
-            /* box-shadow: inset 0 0 0 2000px rgba(255, 255, 255, 0.5); To create a white overlay */
+        }
+
+        /* Context menu styles */
+        #context-menu {
+            display: none;
+            position: absolute;
+            z-index: 1000;
+            background: #fff;
+            border: 1px solid #ccc;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            padding: 10px;
+        }
+
+        #context-menu form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #context-menu form input {
+            margin-bottom: 10px;
+        }
+
+        #context-menu form input[type="text"], 
+        #context-menu form input[type="number"] {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
         }
     </style>
 </head>
@@ -66,10 +92,23 @@
             <div class="overlay"></div>
         </div>
     </div>
+    <div id="context-menu">
+        <form id="context-menu-form">
+            <label for="image-url">Image URL:</label>
+            <input type="text" id="image-url">
+            <label for="image-width">Width (px):</label>
+            <input type="number" id="image-width">
+            <label for="image-height">Height (px):</label>
+            <input type="number" id="image-height">
+            <button type="submit">Apply</button>
+        </form>
+    </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const imageWrapper = document.querySelector('.image-wrapper');
             const image = document.getElementById('image');
+            const contextMenu = document.getElementById('context-menu');
+            const contextMenuForm = document.getElementById('context-menu-form');
             let isDragging = false;
             let isZooming = false;
             let startX, startY, initialX, initialY;
@@ -119,6 +158,39 @@
                 if (e.button === 1) {
                     e.preventDefault();
                 }
+            });
+
+            // Context menu functionality
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                contextMenu.style.top = `${e.clientY}px`;
+                contextMenu.style.left = `${e.clientX}px`;
+                contextMenu.style.display = 'block';
+            });
+
+            document.addEventListener('click', function() {
+                contextMenu.style.display = 'none';
+            });
+
+            contextMenuForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const imageUrl = document.getElementById('image-url').value;
+                const imageWidth = document.getElementById('image-width').value;
+                const imageHeight = document.getElementById('image-height').value;
+
+                if (imageUrl) {
+                    image.src = imageUrl;
+                }
+
+                if (imageWidth) {
+                    image.style.width = `${imageWidth}px`;
+                }
+
+                if (imageHeight) {
+                    image.style.height = `${imageHeight}px`;
+                }
+
+                contextMenu.style.display = 'none';
             });
         });
     </script>
