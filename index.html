@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Cropper</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: transparent;
+        }
+
+        .container {
+            position: relative;
+            width: 300px;
+            height: 400px;
+        }
+
+        .crop-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            border-radius: 150px 150px 0 0; /* Arched top */
+        }
+
+        .image-wrapper {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: grab;
+        }
+
+        .image-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            user-drag: none;
+            user-select: none;
+            transform-origin: top left;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 150px 150px 0 0; /* Arched top */
+            pointer-events: none;
+            box-shadow: inset 0 0 0 2000px rgba(255, 255, 255, 0.5); /* To create a white overlay */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="crop-container">
+            <div class="image-wrapper">
+                <img src="https://i.pinimg.com/564x/d6/6e/88/d66e88c7a958c5300c4213b624e59ff7.jpg" alt="Butterfly Image" id="image">
+            </div>
+            <div class="overlay"></div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageWrapper = document.querySelector('.image-wrapper');
+            const image = document.getElementById('image');
+            let isDragging = false;
+            let isZooming = false;
+            let startX, startY, initialX, initialY;
+            let initialWidth, initialHeight;
+
+            imageWrapper.addEventListener('mousedown', function(e) {
+                if (e.button === 0) { // Left mouse button
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    initialX = parseInt(image.style.left || 0, 10);
+                    initialY = parseInt(image.style.top || 0, 10);
+                    imageWrapper.style.cursor = 'grabbing';
+                } else if (e.button === 1) { // Middle mouse button
+                    isZooming = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    initialWidth = image.clientWidth;
+                    initialHeight = image.clientHeight;
+                    imageWrapper.style.cursor = 'zoom-in';
+                }
+            });
+
+            window.addEventListener('mousemove', function(e) {
+                if (isDragging) {
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    image.style.left = `${initialX + dx}px`;
+                    image.style.top = `${initialY + dy}px`;
+                } else if (isZooming) {
+                    const dy = e.clientY - startY;
+                    const newWidth = initialWidth + dy;
+                    const newHeight = initialHeight + dy * (initialHeight / initialWidth);
+                    image.style.width = `${newWidth}px`;
+                    image.style.height = `${newHeight}px`;
+                }
+            });
+
+            window.addEventListener('mouseup', function() {
+                isDragging = false;
+                isZooming = false;
+                imageWrapper.style.cursor = 'grab';
+            });
+
+            // Prevent default middle mouse button action (scrolling)
+            window.addEventListener('mousedown', function(e) {
+                if (e.button === 1) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
