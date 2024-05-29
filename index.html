@@ -115,6 +115,38 @@
             let startX, startY, initialX, initialY;
             let initialWidth, initialHeight;
 
+            // Load saved settings from localStorage
+            const savedImageUrl = localStorage.getItem('imageUrl');
+            const savedImageX = localStorage.getItem('imageX');
+            const savedImageY = localStorage.getItem('imageY');
+            const savedImageWidth = localStorage.getItem('imageWidth');
+            const savedImageHeight = localStorage.getItem('imageHeight');
+            const savedContainerWidth = localStorage.getItem('containerWidth');
+            const savedContainerHeight = localStorage.getItem('containerHeight');
+
+            if (savedImageUrl) {
+                image.src = savedImageUrl;
+            }
+            if (savedImageX) {
+                image.style.left = savedImageX;
+            }
+            if (savedImageY) {
+                image.style.top = savedImageY;
+            }
+            if (savedImageWidth) {
+                image.style.width = savedImageWidth;
+            }
+            if (savedImageHeight) {
+                image.style.height = savedImageHeight;
+            }
+            if (savedContainerWidth) {
+                container.style.width = savedContainerWidth;
+                container.style.borderRadius = `${parseInt(savedContainerWidth) / 1.5}px ${parseInt(savedContainerWidth) / 1.5}px 0 0`;
+            }
+            if (savedContainerHeight) {
+                container.style.height = savedContainerHeight;
+            }
+
             imageWrapper.addEventListener('mousedown', function(e) {
                 if (e.button === 0) { // Left mouse button
                     isDragging = true;
@@ -152,6 +184,11 @@
                 isDragging = false;
                 isZooming = false;
                 imageWrapper.style.cursor = 'grab';
+                // Save image position and size to localStorage
+                localStorage.setItem('imageX', image.style.left);
+                localStorage.setItem('imageY', image.style.top);
+                localStorage.setItem('imageWidth', image.style.width);
+                localStorage.setItem('imageHeight', image.style.height);
             });
 
             // Prevent default middle mouse button action (scrolling)
@@ -181,15 +218,18 @@
 
                 if (imageUrl) {
                     image.src = imageUrl;
+                    localStorage.setItem('imageUrl', imageUrl);
                 }
 
                 if (containerWidth) {
                     container.style.width = `${containerWidth}px`;
                     container.style.borderRadius = `${containerWidth / 1.5}px ${containerWidth / 1.5}px 0 0`; // Adjust border radius based on width
+                    localStorage.setItem('containerWidth', `${containerWidth}px`);
                 }
 
                 if (containerHeight) {
                     container.style.height = `${containerHeight}px`;
+                    localStorage.setItem('containerHeight', `${containerHeight}px`);
                 }
 
                 contextMenu.style.display = 'none';
