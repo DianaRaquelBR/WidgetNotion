@@ -94,6 +94,20 @@
         #context-menu button:hover {
             background-color: #e0e0e0;
         }
+
+        .close-button {
+            background-color: #ff0000;
+            color: #fff;
+            border: none;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            align-self: flex-end;
+        }
+
+        .close-button:hover {
+            background-color: #cc0000;
+        }
     </style>
 </head>
 <body>
@@ -106,6 +120,7 @@
         </div>
     </div>
     <div id="context-menu">
+        <button class="close-button" id="close-menu-button">X</button>
         <form id="context-menu-form">
             <label for="image-url">Image URL:</label>
             <input type="text" id="image-url">
@@ -127,6 +142,7 @@
             const contextMenuForm = document.getElementById('context-menu-form');
             const resetButton = document.getElementById('reset-button');
             const undoButton = document.getElementById('undo-button');
+            const closeMenuButton = document.getElementById('close-menu-button');
             let isDragging = false;
             let isZooming = false;
             let startX, startY, initialX, initialY;
@@ -245,7 +261,14 @@
                 contextMenu.style.display = 'block';
             });
 
-            document.addEventListener('click', function() {
+            // Close context menu when clicking outside of it
+            document.addEventListener('click', function(e) {
+                if (!contextMenu.contains(e.target)) {
+                    contextMenu.style.display = 'none';
+                }
+            });
+
+            closeMenuButton.addEventListener('click', function() {
                 contextMenu.style.display = 'none';
             });
 
