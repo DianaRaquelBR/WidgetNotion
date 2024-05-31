@@ -158,154 +158,136 @@
                 containerHeight: "268px"
             };
 
-            const savedConfig = {
-                imageUrl: localStorage.getItem('imageUrl'),
-                imageX: localStorage.getItem('imageX'),
-                imageY: localStorage.getItem('imageY'),
-                imageWidth: localStorage.getItem('imageWidth'),
-                imageHeight: localStorage.getItem('imageHeight'),
-                containerWidth: localStorage.getItem('containerWidth'),
-                containerHeight: localStorage.getItem('containerHeight')
-            };
+            function getParams() {
+                const params = new URLSearchParams(window.location.search);
+                return {
+                    widgetId: params.get('widgetId')
+                };
+            }
+
+            const params = getParams();
+            const widgetId = params.widgetId || 'default';
+
+            function getConfig() {
+                return {
+                    imageUrl: localStorage.getItem(`imageUrl_${widgetId}`) || defaultConfig.imageUrl,
+                    imageX: localStorage.getItem(`imageX_${widgetId}`) || defaultConfig.imageX,
+                    imageY: localStorage.getItem(`imageY_${widgetId}`) || defaultConfig.imageY,
+                    imageWidth: localStorage.getItem(`imageWidth_${widgetId}`) || defaultConfig.imageWidth,
+                    imageHeight: localStorage.getItem(`imageHeight_${widgetId}`) || defaultConfig.imageHeight,
+                    containerWidth: localStorage.getItem(`containerWidth_${widgetId}`) || defaultConfig.containerWidth,
+                    containerHeight: localStorage.getItem(`containerHeight_${widgetId}`) || defaultConfig.containerHeight,
+                };
+            }
 
             function applyConfig(config) {
-                if (config.imageUrl) {
-                    image.src = config.imageUrl;
-                }
-                if (config.imageX) {
-                    image.style.left = config.imageX;
-                }
-                if (config.imageY) {
-                    image.style.top = config.imageY;
-                }
-                if (config.imageWidth) {
-                    image.style.width = config.imageWidth;
-                }
-                if (config.imageHeight) {
-                    image.style.height = config.imageHeight;
-                }
-                if (config.containerWidth) {
-                    container.style.width = config.containerWidth;
-                    container.style.borderRadius = `${parseInt(config.containerWidth) / 1.5}px ${parseInt(config.containerWidth) / 1.5}px 0 0`;
-                }
-                if (config.containerHeight) {
-                    container.style.height = config.containerHeight;
-                }
+                image.src = config.imageUrl;
+                image.style.left = config.imageX;
+                image.style.top = config.imageY;
+                image.style.width = config.imageWidth;
+                image.style.height = config.imageHeight;
+                container.style.width = config.containerWidth;
+                container.style.borderRadius = `${parseInt(config.containerWidth) / 1.5}px ${parseInt(config.containerWidth) / 1.5}px 0 0`;
+                container.style.height = config.containerHeight;
             }
 
-            function saveConfigToLocalStorage() {
-                localStorage.setItem('imageUrl', image.src);
-                localStorage.setItem('imageX', image.style.left);
-                localStorage.setItem('imageY', image.style.top);
-                localStorage.setItem('imageWidth', image.style.width);
-                localStorage.setItem('imageHeight', image.style.height);
-                localStorage.setItem('containerWidth', container.style.width);
-                localStorage.setItem('containerHeight', container.style.height);
+            function saveConfig(config) {
+                localStorage.setItem(`imageUrl_${widgetId}`, config.imageUrl);
+                localStorage.setItem(`imageX_${widgetId}`, config.imageX);
+                localStorage.setItem(`imageY_${widgetId}`, config.imageY);
+                localStorage.setItem(`imageWidth_${widgetId}`, config.imageWidth);
+                localStorage.setItem(`imageHeight_${widgetId}`, config.imageHeight);
+                localStorage.setItem(`containerWidth_${widgetId}`, config.containerWidth);
+                localStorage.setItem(`containerHeight_${widgetId}`, config.containerHeight);
             }
 
-            applyConfig(savedConfig);
+            const config = getConfig();
+            applyConfig(config);
 
-            imageWrapper.addEventListener('mousedown', function(e) {
-                if (e.button === 0) { // Left mouse button
-                    isDragging = true;
-                    startX = e.clientX;
-                    startY = e.clientY;
-                    initialX = parseInt(image.style.left || 0, 10);
-                    initialY = parseInt(image.style.top || 0, 10);
-                    imageWrapper.style.cursor = 'grabbing';
-                } else if (e.button === 1) { // Middle mouse button
-                    isZooming = true;
-                    startX = e.clientX;
-                    startY = e.clientY;
-                    initialWidth = image.clientWidth;
-                    initialHeight = image.clientHeight;
-                    imageWrapper.style.cursor = 'zoom-in';
-                }
+            imageWrapper.addEventListener('mousedown', function(event) {
+                if (event.button !== 0) return; // Only respond to left-click
+                isDragging = true;
+                startX = event.clientX;
+                startY = event.clientY;
+                initialX = parseInt(image.style.left) || 0;
+                initialY = parseInt(image.style.top) || 0;
+                imageWrapper.style.cursor = 'grabbing';
             });
 
-            window.addEventListener('mousemove', function(e) {
+            document.addEventListener('mousemove', function(event) {
                 if (isDragging) {
-                    const dx = e.clientX - startX;
-                    const dy = e.clientY - startY;
-                    image.style.left = `${initialX + dx}px`;
-                    image.style.top = `${initialY + dy}px`;
-                } else if (isZooming) {
-                    const dy = e.clientY - startY;
-                    const newWidth = initialWidth + dy;
-                    const newHeight = initialHeight + dy * (initialHeight / initialWidth);
-                    image.style.width = `${newWidth}px`;
-                    image.style.height = `${newHeight}px`;
+                    const deltaX = event.clientX - startX;
+                    const deltaY = event.clientY - startY;
+                    image.style.left = `${initialX + deltaX}px`;
+                    image.style.top = `${initialY + deltaY}px`;
                 }
             });
 
-            window.addEventListener('mouseup', function() {
-                isDragging = false;
-                isZooming = false;
-                imageWrapper.style.cursor = 'grab';
-                // Save image position and size to localStorage
-                saveConfigToLocalStorage();
-            });
-
-            // Prevent default middle mouse button action (scrolling)
-            window.addEventListener('mousedown', function(e) {
-                if (e.button === 1) {
-                    e.preventDefault();
+            document.addEventListener('mouseup', function() {
+                if (isDragging) {
+                    isDragging = false;
+                    imageWrapper.style.cursor = 'grab';
+                    saveConfig(getConfig());
                 }
             });
 
-            // Context menu functionality
-            document.addEventListener('contextmenu', function(e) {
-                e.preventDefault();
-                contextMenu.style.top = `${e.clientY}px`;
-                contextMenu.style.left = `${e.clientX}px`;
+            image.addEventListener('wheel', function(event) {
+                const scaleAmount = event.deltaY * -0.01;
+                const currentWidth = parseFloat(getComputedStyle(image).width);
+                const currentHeight = parseFloat(getComputedStyle(image).height);
+                const newWidth = currentWidth + scaleAmount * currentWidth;
+                const newHeight = currentHeight + scaleAmount * currentHeight;
+                image.style.width = `${newWidth}px`;
+                image.style.height = `${newHeight}px`;
+                saveConfig(getConfig());
+            });
+
+            container.addEventListener('contextmenu', function(event) {
+                event.preventDefault();
                 contextMenu.style.display = 'block';
+                contextMenu.style.left = `${event.pageX}px`;
+                contextMenu.style.top = `${event.pageY}px`;
+
+                contextMenuForm.imageUrl.value = config.imageUrl;
+                contextMenuForm.containerWidth.value = parseInt(config.containerWidth);
+                contextMenuForm.containerHeight.value = parseInt(config.containerHeight);
             });
 
-            // Close context menu when clicking outside of it
-            document.addEventListener('click', function(e) {
-                if (!contextMenu.contains(e.target)) {
-                    contextMenu.style.display = 'none';
-                }
+            contextMenuForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const newConfig = {
+                    imageUrl: contextMenuForm.imageUrl.value,
+                    imageX: config.imageX,
+                    imageY: config.imageY,
+                    imageWidth: config.imageWidth,
+                    imageHeight: config.imageHeight,
+                    containerWidth: `${contextMenuForm.containerWidth.value}px`,
+                    containerHeight: `${contextMenuForm.containerHeight.value}px`,
+                };
+                applyConfig(newConfig);
+                saveConfig(newConfig);
+                contextMenu.style.display = 'none';
+            });
+
+            resetButton.addEventListener('click', function() {
+                applyConfig(defaultConfig);
+                saveConfig(defaultConfig);
+                contextMenu.style.display = 'none';
+            });
+
+            undoButton.addEventListener('click', function() {
+                applyConfig(config);
+                contextMenu.style.display = 'none';
             });
 
             closeMenuButton.addEventListener('click', function() {
                 contextMenu.style.display = 'none';
             });
 
-            contextMenuForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                const imageUrl = document.getElementById('image-url').value;
-                const containerWidth = document.getElementById('container-width').value;
-                const containerHeight = document.getElementById('container-height').value;
-
-                if (imageUrl) {
-                    image.src = imageUrl;
-                    localStorage.setItem('imageUrl', imageUrl);
+            document.addEventListener('click', function(event) {
+                if (!contextMenu.contains(event.target)) {
+                    contextMenu.style.display = 'none';
                 }
-
-                if (containerWidth) {
-                    container.style.width = `${containerWidth}px`;
-                    container.style.borderRadius = `${containerWidth / 1.5}px ${containerWidth / 1.5}px 0 0`; // Adjust border radius based on width
-                    localStorage.setItem('containerWidth', `${containerWidth}px`);
-                }
-
-                if (containerHeight) {
-                    container.style.height = `${containerHeight}px`;
-                    localStorage.setItem('containerHeight', `${containerHeight}px`);
-                }
-
-                contextMenu.style.display = 'none';
-            });
-
-            resetButton.addEventListener('click', function() {
-                applyConfig(defaultConfig);
-                saveConfigToLocalStorage();
-                contextMenu.style.display = 'none';
-            });
-
-            undoButton.addEventListener('click', function() {
-                applyConfig(savedConfig);
-                contextMenu.style.display = 'none';
             });
         });
     </script>
