@@ -5,116 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Cropper</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: transparent;
-        }
-
-        .container {
-            position: relative;
-            width: 223px;
-            height: 268px;
-        }
-
-        .crop-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            border-radius: 150px 150px 0 0; /* Arched top */
-        }
-
-        .image-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            cursor: grab;
-        }
-
-        .image-wrapper img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            user-drag: none;
-            user-select: none;
-            transform-origin: top left;
-        }
-
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 150px 150px 0 0; /* Arched top */
-            pointer-events: none;
-        }
-
-        /* Context menu styles */
-        #context-menu {
-            display: none;
-            position: absolute;
-            z-index: 1000;
-            background: #fff;
-            border: 1px solid #ccc;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            padding: 10px;
-        }
-
-        #context-menu form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        #context-menu form input {
-            margin-bottom: 10px;
-        }
-
-        #context-menu form input[type="text"], 
-        #context-menu form input[type="number"] {
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-
-        #context-menu button {
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            background-color: #f0f0f0;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-
-        #context-menu button:hover {
-            background-color: #e0e0e0;
-        }
-
-        .close-button {
-            background-color: #ff0000;
-            color: #fff;
-            border: none;
-            padding: 5px;
-            cursor: pointer;
-            border-radius: 3px;
-            align-self: flex-end;
-        }
-
-        .close-button:hover {
-            background-color: #cc0000;
-        }
+        /* Tu estilo existente aquí */
     </style>
 </head>
 <body>
     <div class="container" id="container">
         <div class="crop-container">
             <div class="image-wrapper">
-                <img src="https://i.pinimg.com/564x/d6/6e/88/d66e88c7a958c5300c4213b624e59ff7.jpg" alt="Butterfly Image" id="image">
+                <img src="" alt="Butterfly Image" id="image">
             </div>
             <div class="overlay"></div>
         </div>
@@ -158,49 +56,76 @@
                 containerHeight: "268px"
             };
 
+            // Función para obtener los parámetros de la URL
+            function getParams() {
+                const params = new URLSearchParams(window.location.search);
+                return {
+                    widgetId: params.get('widgetId')
+                };
+            }
+
+            const params = getParams();
+            const widgetId = params.widgetId;
+
+            // Obtener configuración específica del widget
             const savedConfig = {
-                imageUrl: localStorage.getItem('imageUrl'),
-                imageX: localStorage.getItem('imageX'),
-                imageY: localStorage.getItem('imageY'),
-                imageWidth: localStorage.getItem('imageWidth'),
-                imageHeight: localStorage.getItem('imageHeight'),
-                containerWidth: localStorage.getItem('containerWidth'),
-                containerHeight: localStorage.getItem('containerHeight')
+                imageUrl: localStorage.getItem(`imageUrl_${widgetId}`),
+                imageX: localStorage.getItem(`imageX_${widgetId}`),
+                imageY: localStorage.getItem(`imageY_${widgetId}`),
+                imageWidth: localStorage.getItem(`imageWidth_${widgetId}`),
+                imageHeight: localStorage.getItem(`imageHeight_${widgetId}`),
+                containerWidth: localStorage.getItem(`containerWidth_${widgetId}`),
+                containerHeight: localStorage.getItem(`containerHeight_${widgetId}`)
             };
 
             function applyConfig(config) {
                 if (config.imageUrl) {
                     image.src = config.imageUrl;
+                } else {
+                    image.src = defaultConfig.imageUrl;
                 }
                 if (config.imageX) {
                     image.style.left = config.imageX;
+                } else {
+                    image.style.left = defaultConfig.imageX;
                 }
                 if (config.imageY) {
                     image.style.top = config.imageY;
+                } else {
+                    image.style.top = defaultConfig.imageY;
                 }
                 if (config.imageWidth) {
                     image.style.width = config.imageWidth;
+                } else {
+                    image.style.width = defaultConfig.imageWidth;
                 }
                 if (config.imageHeight) {
                     image.style.height = config.imageHeight;
+                } else {
+                    image.style.height = defaultConfig.imageHeight;
                 }
                 if (config.containerWidth) {
                     container.style.width = config.containerWidth;
                     container.style.borderRadius = `${parseInt(config.containerWidth) / 1.5}px ${parseInt(config.containerWidth) / 1.5}px 0 0`;
+                } else {
+                    container.style.width = defaultConfig.containerWidth;
+                    container.style.borderRadius = `${parseInt(defaultConfig.containerWidth) / 1.5}px ${parseInt(defaultConfig.containerWidth) / 1.5}px 0 0`;
                 }
                 if (config.containerHeight) {
                     container.style.height = config.containerHeight;
+                } else {
+                    container.style.height = defaultConfig.containerHeight;
                 }
             }
 
             function saveConfigToLocalStorage() {
-                localStorage.setItem('imageUrl', image.src);
-                localStorage.setItem('imageX', image.style.left);
-                localStorage.setItem('imageY', image.style.top);
-                localStorage.setItem('imageWidth', image.style.width);
-                localStorage.setItem('imageHeight', image.style.height);
-                localStorage.setItem('containerWidth', container.style.width);
-                localStorage.setItem('containerHeight', container.style.height);
+                localStorage.setItem(`imageUrl_${widgetId}`, image.src);
+                localStorage.setItem(`imageX_${widgetId}`, image.style.left);
+                localStorage.setItem(`imageY_${widgetId}`, image.style.top);
+                localStorage.setItem(`imageWidth_${widgetId}`, image.style.width);
+                localStorage.setItem(`imageHeight_${widgetId}`, image.style.height);
+                localStorage.setItem(`containerWidth_${widgetId}`, container.style.width);
+                localStorage.setItem(`containerHeight_${widgetId}`, container.style.height);
             }
 
             applyConfig(savedConfig);
@@ -242,18 +167,15 @@
                 isDragging = false;
                 isZooming = false;
                 imageWrapper.style.cursor = 'grab';
-                // Save image position and size to localStorage
                 saveConfigToLocalStorage();
             });
 
-            // Prevent default middle mouse button action (scrolling)
             window.addEventListener('mousedown', function(e) {
                 if (e.button === 1) {
                     e.preventDefault();
                 }
             });
 
-            // Context menu functionality
             document.addEventListener('contextmenu', function(e) {
                 e.preventDefault();
                 contextMenu.style.top = `${e.clientY}px`;
@@ -261,7 +183,6 @@
                 contextMenu.style.display = 'block';
             });
 
-            // Close context menu when clicking outside of it
             document.addEventListener('click', function(e) {
                 if (!contextMenu.contains(e.target)) {
                     contextMenu.style.display = 'none';
@@ -280,18 +201,18 @@
 
                 if (imageUrl) {
                     image.src = imageUrl;
-                    localStorage.setItem('imageUrl', imageUrl);
+                    localStorage.setItem(`imageUrl_${widgetId}`, imageUrl);
                 }
 
                 if (containerWidth) {
                     container.style.width = `${containerWidth}px`;
-                    container.style.borderRadius = `${containerWidth / 1.5}px ${containerWidth / 1.5}px 0 0`; // Adjust border radius based on width
-                    localStorage.setItem('containerWidth', `${containerWidth}px`);
+                    container.style.borderRadius = `${containerWidth / 1.5}px ${containerWidth / 1.5}px 0 0`;
+                    localStorage.setItem(`containerWidth_${widgetId}`, `${containerWidth}px`);
                 }
 
                 if (containerHeight) {
                     container.style.height = `${containerHeight}px`;
-                    localStorage.setItem('containerHeight', `${containerHeight}px`);
+                    localStorage.setItem(`containerHeight_${widgetId}`, `${containerHeight}px`);
                 }
 
                 contextMenu.style.display = 'none';
