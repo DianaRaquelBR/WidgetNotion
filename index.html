@@ -5,116 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Image Cropper</title>
     <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: transparent;
-        }
-
-        .container {
-            position: relative;
-            width: 223px;
-            height: 268px;
-        }
-
-        .crop-container {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            border-radius: 150px 150px 0 0; /* Arched top */
-        }
-
-        .image-wrapper {
-            position: absolute;
-            top: 0;
-            left: 0;
-            cursor: grab;
-        }
-
-        .image-wrapper img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            user-drag: none;
-            user-select: none;
-            transform-origin: top left;
-        }
-
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border-radius: 150px 150px 0 0; /* Arched top */
-            pointer-events: none;
-        }
-
-        /* Context menu styles */
-        #context-menu {
-            display: none;
-            position: absolute;
-            z-index: 1000;
-            background: #fff;
-            border: 1px solid #ccc;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            padding: 10px;
-        }
-
-        #context-menu form {
-            display: flex;
-            flex-direction: column;
-        }
-
-        #context-menu form input {
-            margin-bottom: 10px;
-        }
-
-        #context-menu form input[type="text"], 
-        #context-menu form input[type="number"] {
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-
-        #context-menu button {
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-            background-color: #f0f0f0;
-            cursor: pointer;
-            margin-top: 5px;
-        }
-
-        #context-menu button:hover {
-            background-color: #e0e0e0;
-        }
-
-        .close-button {
-            background-color: #ff0000;
-            color: #fff;
-            border: none;
-            padding: 5px;
-            cursor: pointer;
-            border-radius: 3px;
-            align-self: flex-end;
-        }
-
-        .close-button:hover {
-            background-color: #cc0000;
-        }
+        /* Tu estilo existente aquí */
     </style>
 </head>
 <body>
     <div class="container" id="container">
         <div class="crop-container">
             <div class="image-wrapper">
-                <img src="https://i.pinimg.com/564x/d6/6e/88/d66e88c7a958c5300c4213b624e59ff7.jpg" alt="Butterfly Image" id="image">
+                <img src="" alt="Butterfly Image" id="image">
             </div>
             <div class="overlay"></div>
         </div>
@@ -158,6 +56,7 @@
                 containerHeight: "268px"
             };
 
+            // Función para obtener los parámetros de la URL
             function getParams() {
                 const params = new URLSearchParams(window.location.search);
                 return {
@@ -166,128 +65,168 @@
             }
 
             const params = getParams();
-            const widgetId = params.widgetId || 'default';
+            const widgetId = params.widgetId;
 
-            function getConfig() {
-                return {
-                    imageUrl: localStorage.getItem(`imageUrl_${widgetId}`) || defaultConfig.imageUrl,
-                    imageX: localStorage.getItem(`imageX_${widgetId}`) || defaultConfig.imageX,
-                    imageY: localStorage.getItem(`imageY_${widgetId}`) || defaultConfig.imageY,
-                    imageWidth: localStorage.getItem(`imageWidth_${widgetId}`) || defaultConfig.imageWidth,
-                    imageHeight: localStorage.getItem(`imageHeight_${widgetId}`) || defaultConfig.imageHeight,
-                    containerWidth: localStorage.getItem(`containerWidth_${widgetId}`) || defaultConfig.containerWidth,
-                    containerHeight: localStorage.getItem(`containerHeight_${widgetId}`) || defaultConfig.containerHeight,
-                };
-            }
+            // Obtener configuración específica del widget
+            const savedConfig = {
+                imageUrl: localStorage.getItem(`imageUrl_${widgetId}`),
+                imageX: localStorage.getItem(`imageX_${widgetId}`),
+                imageY: localStorage.getItem(`imageY_${widgetId}`),
+                imageWidth: localStorage.getItem(`imageWidth_${widgetId}`),
+                imageHeight: localStorage.getItem(`imageHeight_${widgetId}`),
+                containerWidth: localStorage.getItem(`containerWidth_${widgetId}`),
+                containerHeight: localStorage.getItem(`containerHeight_${widgetId}`)
+            };
 
             function applyConfig(config) {
-                image.src = config.imageUrl;
-                image.style.left = config.imageX;
-                image.style.top = config.imageY;
-                image.style.width = config.imageWidth;
-                image.style.height = config.imageHeight;
-                container.style.width = config.containerWidth;
-                container.style.borderRadius = `${parseInt(config.containerWidth) / 1.5}px ${parseInt(config.containerWidth) / 1.5}px 0 0`;
-                container.style.height = config.containerHeight;
+                if (config.imageUrl) {
+                    image.src = config.imageUrl;
+                } else {
+                    image.src = defaultConfig.imageUrl;
+                }
+                if (config.imageX) {
+                    image.style.left = config.imageX;
+                } else {
+                    image.style.left = defaultConfig.imageX;
+                }
+                if (config.imageY) {
+                    image.style.top = config.imageY;
+                } else {
+                    image.style.top = defaultConfig.imageY;
+                }
+                if (config.imageWidth) {
+                    image.style.width = config.imageWidth;
+                } else {
+                    image.style.width = defaultConfig.imageWidth;
+                }
+                if (config.imageHeight) {
+                    image.style.height = config.imageHeight;
+                } else {
+                    image.style.height = defaultConfig.imageHeight;
+                }
+                if (config.containerWidth) {
+                    container.style.width = config.containerWidth;
+                    container.style.borderRadius = `${parseInt(config.containerWidth) / 1.5}px ${parseInt(config.containerWidth) / 1.5}px 0 0`;
+                } else {
+                    container.style.width = defaultConfig.containerWidth;
+                    container.style.borderRadius = `${parseInt(defaultConfig.containerWidth) / 1.5}px ${parseInt(defaultConfig.containerWidth) / 1.5}px 0 0`;
+                }
+                if (config.containerHeight) {
+                    container.style.height = config.containerHeight;
+                } else {
+                    container.style.height = defaultConfig.containerHeight;
+                }
             }
 
-            function saveConfig(config) {
-                localStorage.setItem(`imageUrl_${widgetId}`, config.imageUrl);
-                localStorage.setItem(`imageX_${widgetId}`, config.imageX);
-                localStorage.setItem(`imageY_${widgetId}`, config.imageY);
-                localStorage.setItem(`imageWidth_${widgetId}`, config.imageWidth);
-                localStorage.setItem(`imageHeight_${widgetId}`, config.imageHeight);
-                localStorage.setItem(`containerWidth_${widgetId}`, config.containerWidth);
-                localStorage.setItem(`containerHeight_${widgetId}`, config.containerHeight);
+            function saveConfigToLocalStorage() {
+                localStorage.setItem(`imageUrl_${widgetId}`, image.src);
+                localStorage.setItem(`imageX_${widgetId}`, image.style.left);
+                localStorage.setItem(`imageY_${widgetId}`, image.style.top);
+                localStorage.setItem(`imageWidth_${widgetId}`, image.style.width);
+                localStorage.setItem(`imageHeight_${widgetId}`, image.style.height);
+                localStorage.setItem(`containerWidth_${widgetId}`, container.style.width);
+                localStorage.setItem(`containerHeight_${widgetId}`, container.style.height);
             }
 
-            const config = getConfig();
-            applyConfig(config);
+            applyConfig(savedConfig);
 
-            imageWrapper.addEventListener('mousedown', function(event) {
-                if (event.button !== 0) return; // Only respond to left-click
-                isDragging = true;
-                startX = event.clientX;
-                startY = event.clientY;
-                initialX = parseInt(image.style.left) || 0;
-                initialY = parseInt(image.style.top) || 0;
-                imageWrapper.style.cursor = 'grabbing';
-            });
-
-            document.addEventListener('mousemove', function(event) {
-                if (isDragging) {
-                    const deltaX = event.clientX - startX;
-                    const deltaY = event.clientY - startY;
-                    image.style.left = `${initialX + deltaX}px`;
-                    image.style.top = `${initialY + deltaY}px`;
+            imageWrapper.addEventListener('mousedown', function(e) {
+                if (e.button === 0) { // Left mouse button
+                    isDragging = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    initialX = parseInt(image.style.left || 0, 10);
+                    initialY = parseInt(image.style.top || 0, 10);
+                    imageWrapper.style.cursor = 'grabbing';
+                } else if (e.button === 1) { // Middle mouse button
+                    isZooming = true;
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    initialWidth = image.clientWidth;
+                    initialHeight = image.clientHeight;
+                    imageWrapper.style.cursor = 'zoom-in';
                 }
             });
 
-            document.addEventListener('mouseup', function() {
+            window.addEventListener('mousemove', function(e) {
                 if (isDragging) {
-                    isDragging = false;
-                    imageWrapper.style.cursor = 'grab';
-                    saveConfig(getConfig());
+                    const dx = e.clientX - startX;
+                    const dy = e.clientY - startY;
+                    image.style.left = `${initialX + dx}px`;
+                    image.style.top = `${initialY + dy}px`;
+                } else if (isZooming) {
+                    const dy = e.clientY - startY;
+                    const newWidth = initialWidth + dy;
+                    const newHeight = initialHeight + dy * (initialHeight / initialWidth);
+                    image.style.width = `${newWidth}px`;
+                    image.style.height = `${newHeight}px`;
                 }
             });
 
-            image.addEventListener('wheel', function(event) {
-                const scaleAmount = event.deltaY * -0.01;
-                const currentWidth = parseFloat(getComputedStyle(image).width);
-                const currentHeight = parseFloat(getComputedStyle(image).height);
-                const newWidth = currentWidth + scaleAmount * currentWidth;
-                const newHeight = currentHeight + scaleAmount * currentHeight;
-                image.style.width = `${newWidth}px`;
-                image.style.height = `${newHeight}px`;
-                saveConfig(getConfig());
+            window.addEventListener('mouseup', function() {
+                isDragging = false;
+                isZooming = false;
+                imageWrapper.style.cursor = 'grab';
+                saveConfigToLocalStorage();
             });
 
-            container.addEventListener('contextmenu', function(event) {
-                event.preventDefault();
+            window.addEventListener('mousedown', function(e) {
+                if (e.button === 1) {
+                    e.preventDefault();
+                }
+            });
+
+            document.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                contextMenu.style.top = `${e.clientY}px`;
+                contextMenu.style.left = `${e.clientX}px`;
                 contextMenu.style.display = 'block';
-                contextMenu.style.left = `${event.pageX}px`;
-                contextMenu.style.top = `${event.pageY}px`;
-
-                contextMenuForm.imageUrl.value = config.imageUrl;
-                contextMenuForm.containerWidth.value = parseInt(config.containerWidth);
-                contextMenuForm.containerHeight.value = parseInt(config.containerHeight);
             });
 
-            contextMenuForm.addEventListener('submit', function(event) {
-                event.preventDefault();
-                const newConfig = {
-                    imageUrl: contextMenuForm.imageUrl.value,
-                    imageX: config.imageX,
-                    imageY: config.imageY,
-                    imageWidth: config.imageWidth,
-                    imageHeight: config.imageHeight,
-                    containerWidth: `${contextMenuForm.containerWidth.value}px`,
-                    containerHeight: `${contextMenuForm.containerHeight.value}px`,
-                };
-                applyConfig(newConfig);
-                saveConfig(newConfig);
-                contextMenu.style.display = 'none';
-            });
-
-            resetButton.addEventListener('click', function() {
-                applyConfig(defaultConfig);
-                saveConfig(defaultConfig);
-                contextMenu.style.display = 'none';
-            });
-
-            undoButton.addEventListener('click', function() {
-                applyConfig(config);
-                contextMenu.style.display = 'none';
+            document.addEventListener('click', function(e) {
+                if (!contextMenu.contains(e.target)) {
+                    contextMenu.style.display = 'none';
+                }
             });
 
             closeMenuButton.addEventListener('click', function() {
                 contextMenu.style.display = 'none';
             });
 
-            document.addEventListener('click', function(event) {
-                if (!contextMenu.contains(event.target)) {
-                    contextMenu.style.display = 'none';
+            contextMenuForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const imageUrl = document.getElementById('image-url').value;
+                const containerWidth = document.getElementById('container-width').value;
+                const containerHeight = document.getElementById('container-height').value;
+
+                if (imageUrl) {
+                    image.src = imageUrl;
+                    localStorage.setItem(`imageUrl_${widgetId}`, imageUrl);
                 }
+
+                if (containerWidth) {
+                    container.style.width = `${containerWidth}px`;
+                    container.style.borderRadius = `${containerWidth / 1.5}px ${containerWidth / 1.5}px 0 0`;
+                    localStorage.setItem(`containerWidth_${widgetId}`, `${containerWidth}px`);
+                }
+
+                if (containerHeight) {
+                    container.style.height = `${containerHeight}px`;
+                    localStorage.setItem(`containerHeight_${widgetId}`, `${containerHeight}px`);
+                }
+
+                contextMenu.style.display = 'none';
+            });
+
+            resetButton.addEventListener('click', function() {
+                applyConfig(defaultConfig);
+                saveConfigToLocalStorage();
+                contextMenu.style.display = 'none';
+            });
+
+            undoButton.addEventListener('click', function() {
+                applyConfig(savedConfig);
+                contextMenu.style.display = 'none';
             });
         });
     </script>
