@@ -158,7 +158,6 @@
                 containerHeight: "268px"
             };
 
-            // Función para obtener los parámetros de la URL
             function getParams() {
                 const params = new URLSearchParams(window.location.search);
                 return {
@@ -169,58 +168,34 @@
             const params = getParams();
             const widgetId = params.widgetId;
 
-            // Obtener configuración específica del widget
-            const savedConfig = {
-                imageUrl: localStorage.getItem(`imageUrl_${widgetId}`),
-                imageX: localStorage.getItem(`imageX_${widgetId}`),
-                imageY: localStorage.getItem(`imageY_${widgetId}`),
-                imageWidth: localStorage.getItem(`imageWidth_${widgetId}`),
-                imageHeight: localStorage.getItem(`imageHeight_${widgetId}`),
-                containerWidth: localStorage.getItem(`containerWidth_${widgetId}`),
-                containerHeight: localStorage.getItem(`containerHeight_${widgetId}`)
-            };
+            function getConfig() {
+                if (!widgetId) {
+                    return defaultConfig;
+                }
+                return {
+                    imageUrl: localStorage.getItem(`imageUrl_${widgetId}`) || defaultConfig.imageUrl,
+                    imageX: localStorage.getItem(`imageX_${widgetId}`) || defaultConfig.imageX,
+                    imageY: localStorage.getItem(`imageY_${widgetId}`) || defaultConfig.imageY,
+                    imageWidth: localStorage.getItem(`imageWidth_${widgetId}`) || defaultConfig.imageWidth,
+                    imageHeight: localStorage.getItem(`imageHeight_${widgetId}`) || defaultConfig.imageHeight,
+                    containerWidth: localStorage.getItem(`containerWidth_${widgetId}`) || defaultConfig.containerWidth,
+                    containerHeight: localStorage.getItem(`containerHeight_${widgetId}`) || defaultConfig.containerHeight,
+                };
+            }
 
             function applyConfig(config) {
-                if (config.imageUrl) {
-                    image.src = config.imageUrl;
-                } else {
-                    image.src = defaultConfig.imageUrl;
-                }
-                if (config.imageX) {
-                    image.style.left = config.imageX;
-                } else {
-                    image.style.left = defaultConfig.imageX;
-                }
-                if (config.imageY) {
-                    image.style.top = config.imageY;
-                } else {
-                    image.style.top = defaultConfig.imageY;
-                }
-                if (config.imageWidth) {
-                    image.style.width = config.imageWidth;
-                } else {
-                    image.style.width = defaultConfig.imageWidth;
-                }
-                if (config.imageHeight) {
-                    image.style.height = config.imageHeight;
-                } else {
-                    image.style.height = defaultConfig.imageHeight;
-                }
-                if (config.containerWidth) {
-                    container.style.width = config.containerWidth;
-                    container.style.borderRadius = `${parseInt(config.containerWidth) / 1.5}px ${parseInt(config.containerWidth) / 1.5}px 0 0`;
-                } else {
-                    container.style.width = defaultConfig.containerWidth;
-                    container.style.borderRadius = `${parseInt(defaultConfig.containerWidth) / 1.5}px ${parseInt(defaultConfig.containerWidth) / 1.5}px 0 0`;
-                }
-                if (config.containerHeight) {
-                    container.style.height = config.containerHeight;
-                } else {
-                    container.style.height = defaultConfig.containerHeight;
-                }
+                image.src = config.imageUrl;
+                image.style.left = config.imageX;
+                image.style.top = config.imageY;
+                image.style.width = config.imageWidth;
+                image.style.height = config.imageHeight;
+                container.style.width = config.containerWidth;
+                container.style.borderRadius = `${parseInt(config.containerWidth) / 1.5}px ${parseInt(config.containerWidth) / 1.5}px 0 0`;
+                container.style.height = config.containerHeight;
             }
 
             function saveConfigToLocalStorage() {
+                if (!widgetId) return;
                 localStorage.setItem(`imageUrl_${widgetId}`, image.src);
                 localStorage.setItem(`imageX_${widgetId}`, image.style.left);
                 localStorage.setItem(`imageY_${widgetId}`, image.style.top);
@@ -230,7 +205,8 @@
                 localStorage.setItem(`containerHeight_${widgetId}`, container.style.height);
             }
 
-            applyConfig(savedConfig);
+            const currentConfig = getConfig();
+            applyConfig(currentConfig);
 
             imageWrapper.addEventListener('mousedown', function(e) {
                 if (e.button === 0) { // Left mouse button
@@ -327,7 +303,7 @@
             });
 
             undoButton.addEventListener('click', function() {
-                applyConfig(savedConfig);
+                applyConfig(currentConfig);
                 contextMenu.style.display = 'none';
             });
         });
